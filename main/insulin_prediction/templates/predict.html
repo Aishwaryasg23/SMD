@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insulin Dosage Prediction</title>
+</head>
+<body>
+    <h2>Insulin Dosage Prediction</h2>
+    <form id="predictionForm">
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required><br>
+        
+        <label for="bmi">BMI:</label>
+        <input type="number" step="0.1" id="bmi" name="bmi" required><br>
+        
+        <label for="fasting">Fasting Blood Glucose Level:</label>
+        <input type="number" id="fasting" name="fasting" required><br>
+        
+        <label for="afterFood">After Food Level:</label>
+        <input type="number" id="afterFood" name="afterFood" required><br>
+        
+        <label for="carbs">Carbs Intake:</label>
+        <input type="number" id="carbs" name="carbs" required><br>
+        
+        <label for="gender">Gender (0 for Male, 1 for Female):</label>
+        <input type="number" id="gender" name="gender" min="0" max="1" required><br>
+        
+        <button type="button" onclick="predictInsulin()">Predict</button>
+    </form>
+    
+    <h3>Predicted Insulin Dose: <span id="result">--</span> units</h3>
+    
+    <script>
+        function predictInsulin() {
+            let features = [
+                parseFloat(document.getElementById('age').value),
+                parseFloat(document.getElementById('bmi').value),
+                parseFloat(document.getElementById('fasting').value),
+                parseFloat(document.getElementById('afterFood').value),
+                parseFloat(document.getElementById('carbs').value),
+                parseInt(document.getElementById('gender').value)
+            ];
+            
+            fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ features: features })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let roundedDose = Number(data.insulin_dose).toFixed(2); 
+                document.getElementById('result').innerText = roundedDose; 
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerText = "Prediction failed!";
+            });
+        }
+    </script>
+</body>
+</html>
